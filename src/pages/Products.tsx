@@ -11,7 +11,8 @@ function formatAriary(amount: number): string {
 }
 
 export function Products() {
-  const { routes, setRoutes } = useApp();
+  const { routes, setRoutes, currentUser } = useApp();
+  const isAdmin = currentUser?.role === 'admin';
   const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editingRoute, setEditingRoute] = useState<TrainRoute | null>(null);
@@ -26,6 +27,8 @@ export function Products() {
     departureTime: '',
     arrivalTime: '',
     duration: '',
+    serviceName: '',
+    operatingDays: '',
   });
 
   const filteredRoutes = routes.filter(
@@ -56,6 +59,8 @@ export function Products() {
                 departureTime: formData.departureTime,
                 arrivalTime: formData.arrivalTime,
                 duration: formData.duration,
+                serviceName: formData.serviceName.trim() || undefined,
+                operatingDays: formData.operatingDays.trim() || undefined,
               }
             : r
         )
@@ -74,6 +79,8 @@ export function Products() {
         departureTime: formData.departureTime,
         arrivalTime: formData.arrivalTime,
         duration: formData.duration,
+        serviceName: formData.serviceName.trim() || undefined,
+        operatingDays: formData.operatingDays.trim() || undefined,
       };
       setRoutes([...routes, newRoute]);
     }
@@ -94,6 +101,8 @@ export function Products() {
       departureTime: route.departureTime,
       arrivalTime: route.arrivalTime,
       duration: route.duration,
+      serviceName: route.serviceName ?? '',
+      operatingDays: route.operatingDays ?? '',
     });
     setShowModal(true);
   };
@@ -116,6 +125,8 @@ export function Products() {
       departureTime: '',
       arrivalTime: '',
       duration: '',
+      serviceName: '',
+      operatingDays: '',
     });
     setEditingRoute(null);
     setShowModal(false);
@@ -123,18 +134,29 @@ export function Products() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center flex-wrap gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Gestion des trajets</h1>
-          <p className="text-gray-600 mt-1">{routes.length} trajet(s)</p>
+          <h1 className="text-3xl font-bold text-gray-900">
+            {isAdmin ? 'Gestion des trajets' : 'Liste des trajets'}
+          </h1>
+          <p className="text-gray-600 mt-1">
+            {routes.length} trajet(s)
+            {!isAdmin && (
+              <span className="block text-sm text-slate-500 mt-1">
+                Consultation seule — la modification est réservée aux administrateurs.
+              </span>
+            )}
+          </p>
         </div>
-        <Button
-          onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 !bg-emerald-600 hover:!bg-emerald-700"
-        >
-          <Plus className="w-4 h-4" />
-          Nouveau trajet
-        </Button>
+        {isAdmin && (
+          <Button
+            onClick={() => setShowModal(true)}
+            className="flex items-center gap-2 !bg-madarail-red hover:!bg-madarail-red-dark"
+          >
+            <Plus className="w-4 h-4" />
+            Nouveau trajet
+          </Button>
+        )}
       </div>
 
       <div className="flex gap-4">
@@ -154,7 +176,7 @@ export function Products() {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Train
+                  Service / train
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                   Trajet
@@ -172,18 +194,23 @@ export function Products() {
                   Prix
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Places
+                  Places dispo.
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Actions
-                </th>
+                {isAdmin && (
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    Actions
+                  </th>
+                )}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
               {filteredRoutes.map(route => (
                 <tr key={route.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-4 text-sm font-mono text-gray-600">
-                    {route.trainNumber}
+                  <td className="px-4 py-4 text-sm text-gray-600">
+                    <div className="font-medium text-gray-900">
+                      {route.serviceName ?? '—'}
+                    </div>
+                    <div className="font-mono text-xs">{route.trainNumber}</div>
                   </td>
                   <td className="px-4 py-4 text-sm font-medium text-gray-900">
                     {route.departure} → {route.arrival}
@@ -212,33 +239,42 @@ export function Products() {
                   </td>
                   <td className="px-4 py-4 text-sm">
                     <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        route.seatsAvailable < 10
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
+                        route.seatsAvailable <= 0
+                          ? 'bg-slate-200 text-slate-700'
+                          : route.seatsAvailable < 10
                           ? 'bg-red-100 text-red-800'
                           : route.seatsAvailable < 30
                           ? 'bg-yellow-100 text-yellow-800'
                           : 'bg-green-100 text-green-800'
                       }`}
                     >
-                      {route.seatsAvailable}
+                      <span className="tabular-nums">{route.seatsAvailable}</span>
+                      <span className="font-normal opacity-90">places dispo.</span>
                     </span>
                   </td>
-                  <td className="px-4 py-4 text-sm">
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleEdit(route)}
-                        className="text-blue-600 hover:text-blue-800"
-                      >
-                        <Edit className="w-5 h-5" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(route.id)}
-                        className="text-red-600 hover:text-red-800"
-                      >
-                        <Trash2 className="w-5 h-5" />
-                      </button>
-                    </div>
-                  </td>
+                  {isAdmin && (
+                    <td className="px-4 py-4 text-sm">
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleEdit(route)}
+                          className="text-blue-600 hover:text-blue-800"
+                          aria-label="Modifier"
+                        >
+                          <Edit className="w-5 h-5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(route.id)}
+                          className="text-red-600 hover:text-red-800"
+                          aria-label="Supprimer"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
@@ -246,7 +282,7 @@ export function Products() {
         </div>
       </Card>
 
-      {showModal && (
+      {showModal && isAdmin && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <Card className="w-full max-w-lg">
             <h3 className="text-2xl font-bold mb-6">
@@ -285,13 +321,32 @@ export function Products() {
                   required
                 />
                 <Input
-                  label="Ligne"
+                  label="Ligne (code)"
                   value={formData.category}
                   onChange={e =>
                     setFormData({ ...formData, category: e.target.value })
                   }
-                  placeholder="FCE, TCE, MLA..."
+                  placeholder="TCE, TA, MOR..."
                   required
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <Input
+                  label="Service (optionnel)"
+                  value={formData.serviceName}
+                  onChange={e =>
+                    setFormData({ ...formData, serviceName: e.target.value })
+                  }
+                  placeholder="Trans Lémurie Express"
+                />
+                <Input
+                  label="Jours d'exploitation (optionnel)"
+                  value={formData.operatingDays}
+                  onChange={e =>
+                    setFormData({ ...formData, operatingDays: e.target.value })
+                  }
+                  placeholder="ex. Dimanche, Jeudi"
                 />
               </div>
 
@@ -307,7 +362,7 @@ export function Products() {
                       classe: e.target.value as TrainRoute['classe'],
                     })
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-madarail-red focus:border-transparent outline-none"
                   required
                 >
                   <option value="1ère classe">1&egrave;re classe</option>
@@ -368,7 +423,7 @@ export function Products() {
               </div>
 
               <div className="flex gap-3 pt-4">
-                <Button type="submit" className="flex-1 !bg-emerald-600 hover:!bg-emerald-700">
+                <Button type="submit" className="flex-1 !bg-madarail-red hover:!bg-madarail-red-dark">
                   {editingRoute ? 'Enregistrer' : 'Cr&eacute;er'}
                 </Button>
                 <Button

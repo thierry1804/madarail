@@ -58,7 +58,7 @@ export function Dashboard() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Tableau de bord</h1>
-        <p className="text-gray-600 mt-1">MaraRail Madagascar - Vue d'ensemble</p>
+        <p className="text-gray-600 mt-1">Madarail Madagascar - Vue d'ensemble</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -70,8 +70,8 @@ export function Dashboard() {
                 {formatAriary(totalRevenue)}
               </p>
             </div>
-            <div className="bg-emerald-100 p-3 rounded-full">
-              <TrendingUp className="w-6 h-6 text-emerald-600" />
+            <div className="bg-madarail-red-soft p-3 rounded-full">
+              <TrendingUp className="w-6 h-6 text-madarail-red" />
             </div>
           </div>
           <div className="mt-4 flex items-center text-sm">
@@ -139,7 +139,7 @@ export function Dashboard() {
             <div className="space-y-4">
               {topRoutes.map((item, index) => (
                 <div key={item.route.id} className="flex items-center gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 font-bold">
+                  <div className="flex-shrink-0 w-8 h-8 bg-madarail-red-soft rounded-full flex items-center justify-center text-madarail-red font-bold">
                     {index + 1}
                   </div>
                   <div className="flex-1">
@@ -214,7 +214,7 @@ export function Dashboard() {
             return (
               <div key={hour} className="flex-1 flex flex-col items-center">
                 <div
-                  className="w-full bg-emerald-500 rounded-t hover:bg-emerald-600 transition-colors cursor-pointer"
+                  className="w-full bg-madarail-red rounded-t hover:bg-madarail-red-dark transition-colors cursor-pointer"
                   style={{ height: `${height}%` }}
                   title={`${hour}h: ${formatAriary(value)}`}
                 />

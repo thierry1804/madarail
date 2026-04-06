@@ -111,7 +111,7 @@ export function Users() {
         </div>
         <Button
           onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 !bg-emerald-600 hover:!bg-emerald-700"
+          className="flex items-center gap-2 !bg-madarail-red hover:!bg-madarail-red-dark"
         >
           <Plus className="w-4 h-4" />
           Nouvel utilisateur
@@ -121,8 +121,8 @@ export function Users() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card>
           <div className="flex items-center gap-4">
-            <div className="bg-emerald-100 p-3 rounded-full">
-              <UserCircle className="w-6 h-6 text-emerald-600" />
+            <div className="bg-madarail-red-soft p-3 rounded-full">
+              <UserCircle className="w-6 h-6 text-madarail-red" />
             </div>
             <div>
               <p className="text-sm text-gray-600">Total utilisateurs</p>
@@ -197,7 +197,7 @@ export function Users() {
                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                         user.role === 'admin'
                           ? 'bg-blue-100 text-blue-800'
-                          : 'bg-emerald-100 text-emerald-800'
+                          : 'bg-madarail-red-soft text-madarail-navy'
                       }`}
                     >
                       {user.role === 'admin' ? 'Administrateur' : 'Agent'}
@@ -266,7 +266,7 @@ export function Users() {
                       role: e.target.value as 'admin' | 'agent',
                     })
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-madarail-red focus:border-transparent outline-none"
                   required
                 >
                   <option value="agent">Agent de guichet</option>
@@ -283,7 +283,7 @@ export function Users() {
               />
 
               <div className="flex gap-3 pt-4">
-                <Button type="submit" className="flex-1 !bg-emerald-600 hover:!bg-emerald-700">
+                <Button type="submit" className="flex-1 !bg-madarail-red hover:!bg-madarail-red-dark">
                   {editingUser ? 'Enregistrer' : 'Cr&eacute;er'}
                 </Button>
                 <Button

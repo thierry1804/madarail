@@ -10,8 +10,13 @@ export interface User {
 export interface TrainRoute {
   id: string;
   name: string;
+  /** Service commercial Madarail (Train voyageur, Micheline, Trans Lémurie, etc.) */
+  serviceName?: string;
+  /** Jours d'exploitation affichés au guichet (ex. « Dimanche, Jeudi ») */
+  operatingDays?: string;
   departure: string;
   arrival: string;
+  /** Ligne : TCE (Tana), TA (Tana), MOR (Moramanga–Ambila) */
   category: string;
   classe: '1ère classe' | '2ème classe' | '3ème classe';
   price: number;

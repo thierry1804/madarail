@@ -43,7 +43,7 @@ export function Sales() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `billets-mararail-${new Date().toISOString().split('T')[0]}.csv`;
+    a.download = `billets-madarail-${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
   };
 
@@ -65,7 +65,7 @@ export function Sales() {
         </div>
         <Button
           onClick={exportToCSV}
-          className="flex items-center gap-2 !bg-emerald-600 hover:!bg-emerald-700"
+          className="flex items-center gap-2 !bg-madarail-red hover:!bg-madarail-red-dark"
         >
           <Download className="w-4 h-4" />
           Exporter CSV
@@ -75,7 +75,7 @@ export function Sales() {
       <div className="grid grid-cols-4 gap-4">
         <Card>
           <p className="text-sm text-gray-600 mb-1">Total des ventes</p>
-          <p className="text-xl font-bold text-emerald-600">
+          <p className="text-xl font-bold text-madarail-red">
             {formatAriary(sales.reduce((sum, sale) => sum + sale.total, 0))}
           </p>
         </Card>
@@ -161,14 +161,14 @@ export function Sales() {
                       {formatAriary(sale.total)}
                     </td>
                     <td className="px-4 py-4 text-sm">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-madarail-red-soft text-madarail-navy">
                         {getPaymentMethodLabel(sale.paymentMethod)}
                       </span>
                     </td>
                     <td className="px-4 py-4 text-sm">
                       <button
                         onClick={() => setSelectedSale(sale)}
-                        className="text-emerald-600 hover:text-emerald-800"
+                        className="text-madarail-red hover:text-madarail-red-dark"
                       >
                         <Eye className="w-5 h-5" />
                       </button>
@@ -263,7 +263,7 @@ export function Sales() {
                 </div>
                 <div className="flex justify-between text-xl font-bold pt-2 border-t">
                   <span>Total</span>
-                  <span className="text-emerald-600">
+                  <span className="text-madarail-red">
                     {formatAriary(selectedSale.total)}
                   </span>
                 </div>

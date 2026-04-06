@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Train } from 'lucide-react';
 import { useApp } from '../contexts/AppContext';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
+import { MadarailLogo } from '../components/MadarailLogo';
 import { User } from '../types';
 
 export function Login() {
@@ -27,22 +27,23 @@ export function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-900 via-emerald-800 to-emerald-950 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-madarail-navy via-madarail-navy-mid to-[#061525] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-emerald-600 rounded-full mb-4">
-            <Train className="w-10 h-10 text-white" />
+          <div className="flex justify-center mb-4 px-4 py-2">
+            <MadarailLogo className="h-12 w-auto max-w-[280px]" />
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">MaraRail Madagascar</h1>
-          <p className="text-emerald-300">Syst&egrave;me de vente de billets</p>
+          <p className="text-slate-400 text-sm">
+            Syst&egrave;me de vente de billets
+          </p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-xl p-8">
+        <div className="bg-white rounded-2xl shadow-xl p-8 border border-slate-200/80">
           <form onSubmit={handleLogin} className="space-y-6">
             <Input
               label="Email"
               type="email"
-              placeholder="exemple@mararail.mg"
+              placeholder="exemple@madarail.mg"
               value={email}
               onChange={e => setEmail(e.target.value)}
               required
@@ -57,19 +58,35 @@ export function Login() {
               required
             />
 
-            <Button type="submit" className="w-full !bg-emerald-600 hover:!bg-emerald-700" size="lg">
+            <Button
+              type="submit"
+              className="w-full !bg-madarail-red hover:!bg-madarail-red-dark"
+              size="lg"
+            >
               Se connecter
             </Button>
           </form>
 
-          <div className="mt-6 p-4 bg-emerald-50 rounded-lg">
-            <p className="text-sm text-emerald-800 font-medium mb-2">D&eacute;mo:</p>
-            <p className="text-xs text-emerald-600">
-              Admin: admin@mararail.mg<br />
-              Agent: agent@mararail.mg
+          <div className="mt-6 p-4 bg-madarail-rail rounded-lg border border-slate-200">
+            <p className="text-sm text-madarail-navy font-medium mb-2">D&eacute;mo:</p>
+            <p className="text-xs text-slate-600">
+              Admin: admin@madarail.mg
+              <br />
+              Agent: agent@madarail.mg
             </p>
           </div>
         </div>
+
+        <p className="text-center text-xs text-slate-500 mt-6">
+          <a
+            href="http://www.madarail.mg/a_propos.php"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-slate-400 hover:text-white underline underline-offset-2"
+          >
+            madarail.mg
+          </a>
+        </p>
       </div>
     </div>
   );
