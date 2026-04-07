@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+﻿import { useState, useEffect, useMemo } from 'react';
 import {
   Trash2,
   Plus,
@@ -8,17 +8,17 @@ import {
   Ticket,
   Train,
   Clock,
-  User,
-  Calendar,
   CreditCard,
   Search,
   MapPin,
+  CheckCircle2,
+  AlertTriangle,
+  XCircle,
 } from 'lucide-react';
 import { useApp } from '../contexts/AppContext';
 import { TicketItem, Sale, TrainRoute } from '../types';
 import { Button } from '../components/Button';
 import { Input } from '../components/Input';
-import { Card } from '../components/Card';
 import { mockRoutes } from '../utils/mockData';
 
 function formatAriary(amount: number): string {
@@ -27,111 +27,94 @@ function formatAriary(amount: number): string {
 
 const LINE_FILTERS: { id: string; label: string }[] = [
   { id: '', label: 'Toutes lignes' },
-  { id: 'TCE', label: 'Tana – Côte Est' },
-  { id: 'TA', label: 'Tana – Antsirabe' },
-  { id: 'MOR', label: 'Moramanga – Ambila' },
+  { id: 'TCE', label: 'Tana ? Côte Est' },
+  { id: 'TA', label: 'Tana ? Antsirabe' },
+  { id: 'MOR', label: 'Moramanga ? Ambila' },
 ];
 
 function RouteSaleCard({
   route,
   canSelect,
-  getClasseColor,
   lineLabel,
   onSelect,
 }: {
   route: TrainRoute;
   canSelect: boolean;
-  getClasseColor: (classe: string) => string;
   lineLabel: (code: string) => string;
   onSelect: (id: string) => void;
 }) {
+  const stockState =
+    route.seatsAvailable <= 0
+      ? {
+          label: 'Complet',
+          cls: 'bg-red-100 text-red-700 border-red-200',
+          icon: XCircle,
+        }
+      : route.seatsAvailable < 10
+        ? {
+            label: 'Stock faible',
+            cls: 'bg-amber-100 text-amber-800 border-amber-200',
+            icon: AlertTriangle,
+          }
+        : {
+            label: 'Disponible',
+            cls: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+            icon: CheckCircle2,
+          };
+
+  const StockIcon = stockState.icon;
+
   return (
     <button
       type="button"
       disabled={!canSelect}
       onClick={() => canSelect && onSelect(route.id)}
-      className={`group rounded-2xl p-5 border-2 text-left min-h-[180px] flex flex-col transition-all shadow-sm ${
+      className={`rounded-2xl p-4 border-2 text-left min-h-[155px] flex flex-col transition-all ${
         canSelect
-          ? 'bg-white border-madarail-red hover:border-madarail-red-dark hover:shadow-md cursor-pointer'
-          : 'bg-slate-100 border-slate-300 text-slate-500 opacity-80 grayscale cursor-not-allowed'
+          ? 'bg-white border-slate-200 hover:border-madarail-red hover:shadow-md cursor-pointer'
+          : 'bg-slate-100 border-slate-300 text-slate-500 opacity-70 cursor-not-allowed'
       }`}
     >
-      <div className="flex items-start justify-between gap-3 mb-3">
-        <div className="min-w-0 flex-1">
-          <p
-            className={`text-sm font-bold uppercase tracking-wide leading-tight truncate ${
-              canSelect ? 'text-madarail-navy' : 'text-slate-500'
-            }`}
-          >
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-madarail-navy truncate">
             {route.serviceName ?? 'Trajet'}
           </p>
-          <p className="text-xs text-slate-400 font-mono mt-1 tabular-nums">
-            {route.trainNumber}
-          </p>
+          <p className="text-xs text-slate-500 font-mono mt-0.5">{route.trainNumber}</p>
         </div>
-        <span
-          className={`text-xs font-semibold px-2.5 py-1 rounded-full border shrink-0 ${getClasseColor(route.classe)}`}
-        >
+        <span className="text-xs font-semibold px-2 py-1 rounded-full border bg-blue-100 text-blue-700 border-blue-200">
           {route.classe}
         </span>
       </div>
 
-      <div className="flex items-start gap-3 mb-3 flex-1">
-        <Train
-          className={`w-6 h-6 shrink-0 mt-0.5 ${canSelect ? 'text-madarail-red' : 'text-slate-400'}`}
-        />
-        <div className="min-w-0">
-          <p
-            className={`text-lg font-bold leading-tight ${canSelect ? 'text-slate-900' : 'text-slate-600'}`}
-          >
-            {route.departure}
-          </p>
-          <p className="text-sm text-slate-500 mt-0.5">
-            <span className="text-slate-400" aria-hidden="true">
-              →{' '}
-            </span>
-            {route.arrival}
-          </p>
-        </div>
+      <div className="mt-2">
+        <p className="text-lg font-bold text-slate-900 leading-tight">{route.departure}</p>
+        <p className="text-sm text-slate-600">&rarr; {route.arrival}</p>
       </div>
 
-      <div className="flex items-start justify-between gap-2 text-xs text-slate-500 mb-2">
-        <span className="inline-flex items-center gap-1.5">
-          <Clock className="w-3.5 h-3.5 shrink-0 text-slate-400" />
-          <span>
-            {route.departureTime} – {route.arrivalTime} · {route.duration}
-          </span>
+      <div className="mt-2 text-xs text-slate-500 flex items-center justify-between gap-2">
+        <span className="inline-flex items-center gap-1">
+          <Clock className="w-3.5 h-3.5" />
+          {route.departureTime} ? {route.arrivalTime}
         </span>
-        <span className="font-medium text-slate-500 text-right shrink-0 max-w-[50%]">
-          {lineLabel(route.category)}
-        </span>
+        <span>{route.duration}</span>
       </div>
 
-      {route.operatingDays && (
-        <p className="text-xs text-amber-900 bg-amber-50 rounded-lg px-2 py-1.5 mb-2 border border-amber-100">
-          {route.operatingDays}
-        </p>
-      )}
+      <div className="mt-1 text-xs text-slate-500">{lineLabel(route.category)}</div>
 
-      <div className="flex items-end justify-between mt-auto pt-3 border-t border-slate-200">
-        <span
-          className={`text-2xl font-bold tabular-nums tracking-tight ${
-            canSelect ? 'text-madarail-red' : 'text-slate-500'
-          }`}
-        >
+      <div className="mt-auto pt-3 border-t border-slate-200 flex items-end justify-between gap-2">
+        <span className="text-2xl font-bold text-madarail-red tabular-nums">
           {formatAriary(route.price)}
         </span>
-        <span
-          className={`text-sm font-semibold tabular-nums ${
-            canSelect
-              ? route.seatsAvailable < 10
-                ? 'text-red-600'
-                : 'text-madarail-red'
-              : 'text-slate-500'
-          }`}
-        >
-          {route.seatsAvailable} pl. dispo.
-        </span>
+        <div className="text-right">
+          <span
+            className={`inline-flex items-center gap-1 px-2 py-1 rounded-full border text-[11px] font-semibold ${stockState.cls}`}
+          >
+            <StockIcon className="w-3.5 h-3.5" />
+            {stockState.label}
+          </span>
+          <p className="text-xs text-slate-600 mt-1 tabular-nums">{route.seatsAvailable} places</p>
+        </div>
       </div>
     </button>
   );
@@ -143,14 +126,10 @@ export function POS() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedService, setSelectedService] = useState('');
   const [selectedLine, setSelectedLine] = useState('');
-  const [now, setNow] = useState(() => new Date());
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [showPassengerModal, setShowPassengerModal] = useState(false);
-  const [pendingRouteId, setPendingRouteId] = useState<string | null>(null);
+  const [selectedRouteId, setSelectedRouteId] = useState<string | null>(null);
   const [passengerName, setPassengerName] = useState('');
-  const [travelDate, setTravelDate] = useState(
-    new Date().toISOString().split('T')[0]
-  );
+  const [travelDate, setTravelDate] = useState(new Date().toISOString().split('T')[0]);
+  const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
     if (routes.length === 0) {
@@ -172,15 +151,14 @@ export function POS() {
   }, [routes]);
 
   const filteredRoutes = routes.filter(route => {
+    const q = searchTerm.toLowerCase();
     const matchesSearch =
-      route.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      route.departure.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      route.arrival.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      route.trainNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (route.serviceName?.toLowerCase().includes(searchTerm.toLowerCase()) ??
-        false);
-    const matchesService =
-      !selectedService || route.serviceName === selectedService;
+      route.name.toLowerCase().includes(q) ||
+      route.departure.toLowerCase().includes(q) ||
+      route.arrival.toLowerCase().includes(q) ||
+      route.trainNumber.toLowerCase().includes(q) ||
+      (route.serviceName?.toLowerCase().includes(q) ?? false);
+    const matchesService = !selectedService || route.serviceName === selectedService;
     const matchesLine = !selectedLine || route.category === selectedLine;
     return matchesSearch && matchesService && matchesLine;
   });
@@ -194,43 +172,40 @@ export function POS() {
     [filteredRoutes]
   );
 
-  const handleRouteSelect = (routeId: string) => {
-    setPendingRouteId(routeId);
-    setPassengerName('');
-    setShowPassengerModal(true);
-  };
+  const selectedRoute = useMemo(
+    () => routes.find(r => r.id === selectedRouteId) ?? null,
+    [routes, selectedRouteId]
+  );
 
-  const addToCart = () => {
-    if (!pendingRouteId || !passengerName.trim()) return;
-    const route = routes.find(r => r.id === pendingRouteId);
-    if (!route) return;
+  const addSelectedToCart = () => {
+    if (!selectedRoute || !passengerName.trim()) return;
 
-    const live = routes.find(r => r.id === route.id) ?? route;
     const qtyAlready = cart
-      .filter(i => i.route.id === live.id)
+      .filter(i => i.route.id === selectedRoute.id)
       .reduce((s, i) => s + i.quantity, 0);
-    if (qtyAlready + 1 > live.seatsAvailable) {
+
+    if (qtyAlready + 1 > selectedRoute.seatsAvailable) {
       window.alert('Plus de places disponibles pour ce trajet.');
       return;
     }
 
-    setCart([
-      ...cart,
+    setCart(prev => [
+      ...prev,
       {
-        route,
+        route: selectedRoute,
         quantity: 1,
         passengerName: passengerName.trim(),
         travelDate,
       },
     ]);
-    setShowPassengerModal(false);
-    setPendingRouteId(null);
+
     setPassengerName('');
   };
 
   const updateQuantity = (index: number, change: number) => {
     const item = cart[index];
     if (!item) return;
+
     const newQty = item.quantity + change;
     if (newQty <= 0) {
       setCart(cart.filter((_, i) => i !== index));
@@ -238,24 +213,21 @@ export function POS() {
     }
 
     if (change > 0) {
-      const routeId = item.route.id;
-      const live = routes.find(r => r.id === routeId);
+      const live = routes.find(r => r.id === item.route.id);
       if (!live) return;
+
       const qtySameRouteElsewhere = cart.reduce((sum, line, i) => {
         if (i === index) return sum;
-        return line.route.id === routeId ? sum + line.quantity : sum;
+        return line.route.id === item.route.id ? sum + line.quantity : sum;
       }, 0);
+
       if (qtySameRouteElsewhere + newQty > live.seatsAvailable) {
         window.alert('Nombre de places insuffisant pour ce trajet.');
         return;
       }
     }
 
-    setCart(
-      cart.map((line, i) =>
-        i === index ? { ...line, quantity: newQty } : line
-      )
-    );
+    setCart(cart.map((line, i) => (i === index ? { ...line, quantity: newQty } : line)));
   };
 
   const removeFromCart = (index: number) => {
@@ -263,10 +235,7 @@ export function POS() {
   };
 
   const calculateTotal = () => {
-    const subtotal = cart.reduce(
-      (sum, item) => sum + item.route.price * item.quantity,
-      0
-    );
+    const subtotal = cart.reduce((sum, item) => sum + item.route.price * item.quantity, 0);
     const tax = subtotal * 0.2;
     return { subtotal, tax, total: subtotal + tax };
   };
@@ -276,8 +245,7 @@ export function POS() {
 
     const seatsByRouteId = new Map<string, number>();
     for (const item of cart) {
-      const id = item.route.id;
-      seatsByRouteId.set(id, (seatsByRouteId.get(id) ?? 0) + item.quantity);
+      seatsByRouteId.set(item.route.id, (seatsByRouteId.get(item.route.id) ?? 0) + item.quantity);
     }
 
     for (const [routeId, qty] of seatsByRouteId) {
@@ -310,31 +278,14 @@ export function POS() {
       prev.map(r => {
         const sold = seatsByRouteId.get(r.id);
         if (!sold) return r;
-        return {
-          ...r,
-          seatsAvailable: Math.max(0, r.seatsAvailable - sold),
-        };
+        return { ...r, seatsAvailable: Math.max(0, r.seatsAvailable - sold) };
       })
     );
 
     setCart([]);
-    setShowPaymentModal(false);
   };
 
   const { subtotal, tax, total } = calculateTotal();
-
-  const getClasseColor = (classe: string) => {
-    switch (classe) {
-      case '1ère classe':
-        return 'bg-amber-100 text-amber-800 border-amber-300';
-      case '2ème classe':
-        return 'bg-blue-100 text-blue-800 border-blue-300';
-      case '3ème classe':
-        return 'bg-gray-100 text-gray-800 border-gray-300';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
 
   const lineLabel = (code: string) => {
     const f = LINE_FILTERS.find(l => l.id === code);
@@ -343,7 +294,6 @@ export function POS() {
 
   return (
     <div className="flex flex-col h-full min-h-0 bg-madarail-navy">
-      {/* Barre caisse type POS */}
       <header className="shrink-0 flex flex-wrap items-center justify-between gap-3 px-4 py-3 bg-[#061525] text-white border-b border-madarail-navy-bright">
         <div className="flex items-center gap-4 min-w-0">
           <div className="flex items-center gap-2 shrink-0">
@@ -351,9 +301,7 @@ export function POS() {
               <Ticket className="w-6 h-6" />
             </div>
             <div>
-              <h1 className="text-lg font-bold tracking-tight leading-tight">
-                Caisse billets
-              </h1>
+              <h1 className="text-lg font-bold tracking-tight leading-tight">Caisse billets</h1>
               <p className="text-xs text-slate-400">Madarail · Guichet</p>
             </div>
           </div>
@@ -372,36 +320,25 @@ export function POS() {
                 second: '2-digit',
               })}
             </span>
-            <span className="text-slate-500 hidden md:inline">
-              {now.toLocaleDateString('fr-FR', {
-                weekday: 'short',
-                day: 'numeric',
-                month: 'short',
-              })}
-            </span>
           </div>
           <div className="text-right hidden md:block">
             <p className="text-xs text-slate-500">Agent</p>
-            <p className="font-medium truncate max-w-[160px]">
-              {currentUser?.name}
-            </p>
+            <p className="font-medium truncate max-w-[160px]">{currentUser?.name}</p>
           </div>
         </div>
       </header>
 
-      <div className="flex flex-col xl:flex-row flex-1 min-h-0 overflow-hidden">
-        {/* Zone catalogue trajets */}
-        <div className="flex-1 flex flex-col min-w-0 min-h-0 bg-slate-100 xl:min-h-0 min-h-[45vh]">
+      <div className="flex flex-col xl:flex-row flex-1 min-h-0 overflow-hidden pb-20 xl:pb-0">
+        <section className="flex-1 basis-[64%] xl:basis-auto flex flex-col min-w-0 min-h-0 bg-slate-100">
           <div className="shrink-0 p-3 space-y-3 border-b border-slate-200 bg-white">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
               <input
                 type="search"
-                placeholder="Rechercher gare, train, service…"
+                placeholder="Rechercher gare, train, service?"
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                className="w-full pl-11 pr-4 py-3 rounded-xl border-2 border-slate-200 text-base
-                  focus:border-madarail-red focus:ring-2 focus:ring-madarail-red/25 outline-none transition-shadow"
+                className="w-full pl-11 pr-4 py-3 rounded-xl border-2 border-slate-200 text-base focus:border-madarail-red focus:ring-2 focus:ring-madarail-red/25 outline-none"
               />
             </div>
 
@@ -412,7 +349,7 @@ export function POS() {
               <button
                 type="button"
                 onClick={() => setSelectedService('')}
-                className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors min-h-[44px] ${
+                className={`px-4 py-2.5 rounded-xl text-sm font-semibold min-h-[44px] ${
                   !selectedService
                     ? 'bg-madarail-red text-white shadow-md'
                     : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
@@ -425,7 +362,7 @@ export function POS() {
                   key={svc}
                   type="button"
                   onClick={() => setSelectedService(svc)}
-                  className={`px-4 py-2.5 rounded-xl text-sm font-semibold text-left transition-colors min-h-[44px] max-w-[280px] ${
+                  className={`px-4 py-2.5 rounded-xl text-sm font-semibold text-left min-h-[44px] max-w-[280px] ${
                     selectedService === svc
                       ? 'bg-madarail-red text-white shadow-md'
                       : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
@@ -445,7 +382,7 @@ export function POS() {
                   key={line.id || 'all'}
                   type="button"
                   onClick={() => setSelectedLine(line.id)}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors min-h-[40px] ${
+                  className={`px-3 py-2 rounded-lg text-sm font-medium min-h-[40px] ${
                     selectedLine === line.id
                       ? 'bg-slate-800 text-white'
                       : 'bg-white border border-slate-200 text-slate-700 hover:border-madarail-red'
@@ -464,15 +401,14 @@ export function POS() {
                   key={route.id}
                   route={route}
                   canSelect
-                  getClasseColor={getClasseColor}
                   lineLabel={lineLabel}
-                  onSelect={handleRouteSelect}
+                  onSelect={setSelectedRouteId}
                 />
               ))}
               {routesSoldOut.length > 0 && (
-                <div className="col-span-full flex flex-col gap-2 pt-4 mt-2 border-t border-slate-300">
+                <div className="col-span-full pt-4 mt-2 border-t border-slate-300">
                   <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
-                    Complet — sans places disponibles
+                    Complet ? sans places disponibles
                   </p>
                 </div>
               )}
@@ -481,9 +417,8 @@ export function POS() {
                   key={route.id}
                   route={route}
                   canSelect={false}
-                  getClasseColor={getClasseColor}
                   lineLabel={lineLabel}
-                  onSelect={handleRouteSelect}
+                  onSelect={setSelectedRouteId}
                 />
               ))}
             </div>
@@ -491,14 +426,12 @@ export function POS() {
               <div className="flex flex-col items-center justify-center py-20 text-slate-500">
                 <Train className="w-16 h-16 mb-4 opacity-40" />
                 <p className="font-medium">Aucun trajet pour ces filtres</p>
-                <p className="text-sm">Modifiez la recherche ou le service.</p>
               </div>
             )}
           </div>
-        </div>
+        </section>
 
-        {/* Panneau panier type caisse */}
-        <aside className="w-full xl:max-w-md xl:w-[420px] shrink-0 flex flex-col bg-white border-t xl:border-t-0 xl:border-l border-slate-200 shadow-xl min-h-[40vh] xl:min-h-0">
+        <aside className="w-full basis-[36%] xl:basis-auto xl:max-w-md xl:w-[420px] shrink-0 flex flex-col min-h-0 bg-white border-t xl:border-t-0 xl:border-l border-slate-200 shadow-xl">
           <div className="p-4 border-b border-slate-200 bg-slate-50">
             <div className="flex items-center gap-2 mb-1">
               <Ticket className="w-6 h-6 text-madarail-red" />
@@ -509,32 +442,64 @@ export function POS() {
             </p>
           </div>
 
+          <div className="p-4 border-b border-slate-200 bg-white space-y-3">
+            <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Ajout rapide</p>
+            {selectedRoute ? (
+              <div className="rounded-xl border border-slate-200 p-3 bg-slate-50">
+                <p className="text-xs font-semibold text-madarail-navy uppercase truncate">
+                  {selectedRoute.serviceName}
+                </p>
+                <p className="font-bold text-slate-900 text-sm">
+                  {selectedRoute.departure} &rarr; {selectedRoute.arrival}
+                </p>
+                <p className="text-xs text-slate-500">
+                  {selectedRoute.trainNumber} · {selectedRoute.departureTime} · {selectedRoute.seatsAvailable} pl.
+                </p>
+              </div>
+            ) : (
+              <p className="text-sm text-slate-500">Sélectionnez un trajet pour saisir le passager.</p>
+            )}
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-1 gap-2">
+              <Input
+                label="Nom passager"
+                value={passengerName}
+                onChange={e => setPassengerName(e.target.value)}
+                placeholder="Nom complet"
+              />
+              <Input
+                label="Date voyage"
+                type="date"
+                value={travelDate}
+                onChange={e => setTravelDate(e.target.value)}
+                min={new Date().toISOString().split('T')[0]}
+              />
+            </div>
+            <Button
+              onClick={addSelectedToCart}
+              disabled={!selectedRoute || !passengerName.trim()}
+              className="w-full !bg-madarail-red hover:!bg-madarail-red-dark"
+            >
+              Ajouter au panier
+            </Button>
+          </div>
+
           <div className="flex-1 overflow-y-auto p-4">
             {cart.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full min-h-[200px] text-slate-400">
-                <Ticket className="w-14 h-14 mb-3 opacity-50" />
+              <div className="flex flex-col items-center justify-center h-full min-h-[160px] text-slate-400">
+                <Ticket className="w-12 h-12 mb-3 opacity-50" />
                 <p className="font-medium text-slate-500">Panier vide</p>
-                <p className="text-sm text-center px-4">
-                  Sélectionnez un trajet à gauche pour commencer la vente.
-                </p>
               </div>
             ) : (
               <div className="space-y-3">
                 {cart.map((item, index) => (
-                  <div
-                    key={index}
-                    className="bg-slate-50 rounded-xl p-4 border border-slate-200"
-                  >
+                  <div key={index} className="bg-slate-50 rounded-xl p-4 border border-slate-200">
                     <div className="flex justify-between items-start gap-2 mb-2">
                       <div className="min-w-0 flex-1">
-                        <p className="text-xs font-semibold text-madarail-navy truncate">
-                          {item.route.serviceName ?? 'Trajet'}
-                        </p>
                         <h4 className="font-bold text-slate-900 text-sm leading-tight">
-                          {item.route.departure} → {item.route.arrival}
+                          {item.route.departure} &rarr; {item.route.arrival}
                         </h4>
                         <p className="text-xs text-slate-500 mt-1">
-                          {item.route.trainNumber} · {item.route.classe}
+                          {item.route.trainNumber} · {item.passengerName}
                         </p>
                       </div>
                       <button
@@ -547,19 +512,6 @@ export function POS() {
                       </button>
                     </div>
 
-                    <div className="text-xs text-slate-600 mb-3 space-y-1">
-                      <div className="flex items-center gap-1.5">
-                        <User className="w-3.5 h-3.5 shrink-0" />
-                        <span className="truncate">{item.passengerName}</span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <Calendar className="w-3.5 h-3.5 shrink-0" />
-                        <span>
-                          {new Date(item.travelDate).toLocaleDateString('fr-FR')}
-                        </span>
-                      </div>
-                    </div>
-
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1 bg-white rounded-lg border-2 border-slate-200">
                         <button
@@ -569,9 +521,7 @@ export function POS() {
                         >
                           <Minus className="w-4 h-4" />
                         </button>
-                        <span className="w-10 text-center font-bold text-base">
-                          {item.quantity}
-                        </span>
+                        <span className="w-10 text-center font-bold text-base">{item.quantity}</span>
                         <button
                           type="button"
                           onClick={() => updateQuantity(index, 1)}
@@ -590,7 +540,7 @@ export function POS() {
             )}
           </div>
 
-          <div className="p-4 border-t-2 border-slate-200 bg-slate-50 space-y-3">
+          <div className="sticky bottom-0 p-4 border-t-2 border-slate-200 bg-white/95 backdrop-blur space-y-3">
             <div className="space-y-1.5 text-sm">
               <div className="flex justify-between text-slate-600">
                 <span>Sous-total</span>
@@ -602,157 +552,54 @@ export function POS() {
               </div>
               <div className="flex justify-between text-2xl font-bold pt-2 border-t border-slate-300 text-slate-900">
                 <span>À payer</span>
-                <span className="text-madarail-red tabular-nums">
-                  {formatAriary(total)}
-                </span>
+                <span className="text-madarail-red tabular-nums">{formatAriary(total)}</span>
               </div>
             </div>
 
-            <Button
-              onClick={() => setShowPaymentModal(true)}
-              disabled={cart.length === 0}
-              className="w-full !bg-madarail-red hover:!bg-madarail-red-dark !py-4 text-lg font-bold shadow-lg"
-              size="lg"
-            >
-              Encaisser
-            </Button>
+            <div className="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-1 gap-2">
+              <button
+                type="button"
+                onClick={() => handlePayment('cash')}
+                disabled={cart.length === 0}
+                className="w-full flex items-center justify-center gap-2 p-3 rounded-lg border border-green-300 bg-green-50 text-green-800 font-semibold disabled:opacity-50"
+              >
+                <Banknote className="w-4 h-4" /> Espèces
+              </button>
+              <button
+                type="button"
+                onClick={() => handlePayment('card')}
+                disabled={cart.length === 0}
+                className="w-full flex items-center justify-center gap-2 p-3 rounded-lg border border-blue-300 bg-blue-50 text-blue-800 font-semibold disabled:opacity-50"
+              >
+                <CreditCard className="w-4 h-4" /> Carte
+              </button>
+              <button
+                type="button"
+                onClick={() => handlePayment('mobile_money')}
+                disabled={cart.length === 0}
+                className="w-full flex items-center justify-center gap-2 p-3 rounded-lg border border-orange-300 bg-orange-50 text-orange-800 font-semibold disabled:opacity-50"
+              >
+                <Smartphone className="w-4 h-4" /> Mobile Money
+              </button>
+            </div>
           </div>
         </aside>
       </div>
 
-      {showPassengerModal && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto">
-            <h3 className="text-xl font-bold mb-4">Passager</h3>
-            <div className="space-y-4">
-              <Input
-                label="Nom du passager"
-                placeholder="Nom complet"
-                value={passengerName}
-                onChange={e => setPassengerName(e.target.value)}
-                required
-              />
-              <Input
-                label="Date de voyage"
-                type="date"
-                value={travelDate}
-                onChange={e => setTravelDate(e.target.value)}
-                min={new Date().toISOString().split('T')[0]}
-                required
-              />
-
-              {pendingRouteId && (
-                <div className="bg-madarail-red-soft rounded-xl p-4 border border-madarail-red-muted">
-                  {(() => {
-                    const route = routes.find(r => r.id === pendingRouteId);
-                    if (!route) return null;
-                    return (
-                      <div className="space-y-1">
-                        <p className="text-xs font-semibold text-madarail-navy uppercase">
-                          {route.serviceName}
-                        </p>
-                        <p className="font-bold text-madarail-navy">
-                          {route.departure} → {route.arrival}
-                        </p>
-                        <p className="text-sm text-madarail-navy-mid">
-                          {route.trainNumber} · {route.classe}
-                        </p>
-                        <p className="text-sm text-madarail-navy-mid">
-                          Départ {route.departureTime} · Arrivée{' '}
-                          {route.arrivalTime} ({route.duration})
-                        </p>
-                        {route.operatingDays && (
-                          <p className="text-sm text-amber-900 bg-amber-100 rounded-lg px-2 py-1 mt-2">
-                            Jours : {route.operatingDays}
-                          </p>
-                        )}
-                        <p className="font-bold text-lg text-madarail-red mt-2">
-                          {formatAriary(route.price)}
-                        </p>
-                      </div>
-                    );
-                  })()}
-                </div>
-              )}
-
-              <div className="flex gap-3 pt-2">
-                <Button
-                  onClick={addToCart}
-                  disabled={!passengerName.trim()}
-                  className="flex-1 !bg-madarail-red hover:!bg-madarail-red-dark"
-                >
-                  Ajouter au panier
-                </Button>
-                <Button
-                  onClick={() => {
-                    setShowPassengerModal(false);
-                    setPendingRouteId(null);
-                  }}
-                  variant="secondary"
-                  className="flex-1"
-                >
-                  Annuler
-                </Button>
-              </div>
-            </div>
-          </Card>
+      <div className="xl:hidden fixed bottom-0 left-0 right-0 z-30 border-t border-slate-300 bg-white px-4 py-3 flex items-center justify-between shadow-[0_-4px_16px_rgba(0,0,0,0.08)]">
+        <div>
+          <p className="text-xs text-slate-500">Total panier</p>
+          <p className="text-lg font-bold text-madarail-red tabular-nums">{formatAriary(total)}</p>
         </div>
-      )}
-
-      {showPaymentModal && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <Card className="w-full max-w-md">
-            <h3 className="text-2xl font-bold mb-6">Paiement</h3>
-            <div className="space-y-3">
-              <button
-                type="button"
-                onClick={() => handlePayment('cash')}
-                className="w-full flex items-center gap-4 p-4 bg-green-50 hover:bg-green-100 border-2 border-green-500 rounded-xl transition-all min-h-[56px]"
-              >
-                <Banknote className="w-8 h-8 text-green-600 shrink-0" />
-                <div className="text-left">
-                  <p className="font-bold text-lg">Espèces</p>
-                  <p className="text-sm text-gray-600">Ariary</p>
-                </div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handlePayment('card')}
-                className="w-full flex items-center gap-4 p-4 bg-blue-50 hover:bg-blue-100 border-2 border-blue-500 rounded-xl transition-all min-h-[56px]"
-              >
-                <CreditCard className="w-8 h-8 text-blue-600 shrink-0" />
-                <div className="text-left">
-                  <p className="font-bold text-lg">Carte bancaire</p>
-                  <p className="text-sm text-gray-600">Visa, Mastercard</p>
-                </div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handlePayment('mobile_money')}
-                className="w-full flex items-center gap-4 p-4 bg-orange-50 hover:bg-orange-100 border-2 border-orange-500 rounded-xl transition-all min-h-[56px]"
-              >
-                <Smartphone className="w-8 h-8 text-orange-600 shrink-0" />
-                <div className="text-left">
-                  <p className="font-bold text-lg">Mobile Money</p>
-                  <p className="text-sm text-gray-600">
-                    MVola, Orange Money, Airtel Money
-                  </p>
-                </div>
-              </button>
-            </div>
-
-            <Button
-              onClick={() => setShowPaymentModal(false)}
-              variant="secondary"
-              className="w-full mt-4"
-            >
-              Annuler
-            </Button>
-          </Card>
-        </div>
-      )}
+        <Button
+          onClick={() => cart.length > 0 && handlePayment('cash')}
+          disabled={cart.length === 0}
+          className="!bg-madarail-red hover:!bg-madarail-red-dark"
+        >
+          Encaisser (Espèces)
+        </Button>
+      </div>
     </div>
   );
 }
+
