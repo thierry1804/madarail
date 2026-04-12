@@ -5,10 +5,7 @@ import { Card } from '../components/Card';
 import { Button } from '../components/Button';
 import { Input } from '../components/Input';
 import { TrainRoute } from '../types';
-
-function formatAriary(amount: number): string {
-  return amount.toLocaleString('fr-FR') + ' Ar';
-}
+import { formatAriary } from '../utils/format';
 
 export function Products() {
   const { routes, setRoutes, currentUser } = useApp();
@@ -133,10 +130,10 @@ export function Products() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center flex-wrap gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">
+    <div className="space-y-6 min-w-0">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
             {isAdmin ? 'Gestion des trajets' : 'Liste des trajets'}
           </h1>
           <p className="text-gray-600 mt-1">
@@ -151,7 +148,7 @@ export function Products() {
         {isAdmin && (
           <Button
             onClick={() => setShowModal(true)}
-            className="flex items-center gap-2 !bg-madarail-red hover:!bg-madarail-red-dark"
+            className="flex w-full sm:w-auto shrink-0 items-center justify-center gap-2 !bg-madarail-red hover:!bg-madarail-red-dark"
           >
             <Plus className="w-4 h-4" />
             Nouveau trajet
@@ -172,7 +169,7 @@ export function Products() {
 
       <Card>
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full min-w-[720px] text-left">
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">

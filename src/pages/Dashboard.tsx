@@ -1,10 +1,19 @@
 import { TrendingUp, Ticket, Train } from 'lucide-react';
 import { useApp } from '../contexts/AppContext';
 import { Card } from '../components/Card';
+import { formatAriary } from '../utils/format';
 
-function formatAriary(amount: number): string {
-  return amount.toLocaleString('fr-FR') + ' Ar';
-}
+const PAYMENT_LABELS: Record<string, string> = {
+  mvola:        'MVola',
+  orange_money: 'Orange Money',
+  airtel_money: 'Airtel Money',
+};
+
+const PAYMENT_COLORS: Record<string, string> = {
+  mvola:        'bg-red-600',
+  orange_money: 'bg-orange-500',
+  airtel_money: 'bg-blue-600',
+};
 
 export function Dashboard() {
   const { sales, routes } = useApp();
@@ -15,33 +24,22 @@ export function Dashboard() {
     return saleDate.toDateString() === today.toDateString();
   });
 
-  const totalRevenue = todaySales.reduce((sum, sale) => sum + sale.total, 0);
+  const totalRevenue      = todaySales.reduce((sum, sale) => sum + sale.total, 0);
   const totalTransactions = todaySales.length;
-  const totalTickets = todaySales.reduce(
-    (sum, sale) => sum + sale.items.reduce((s, item) => s + item.quantity, 0),
-    0
-  );
-  const averageTicket = totalTransactions > 0 ? totalRevenue / totalTransactions : 0;
+  const totalTickets      = todaySales.reduce((sum, sale) => sum + sale.items.reduce((s, item) => s + item.quantity, 0), 0);
+  const averageTicket     = totalTransactions > 0 ? totalRevenue / totalTransactions : 0;
 
   const routeSales = todaySales.reduce((acc, sale) => {
     sale.items.forEach(item => {
       const key = item.route.id;
-      if (!acc[key]) {
-        acc[key] = {
-          route: item.route,
-          quantity: 0,
-          revenue: 0,
-        };
-      }
+      if (!acc[key]) acc[key] = { route: item.route, quantity: 0, revenue: 0 };
       acc[key].quantity += item.quantity;
-      acc[key].revenue += item.route.price * item.quantity;
+      acc[key].revenue  += item.route.price * item.quantity;
     });
     return acc;
   }, {} as Record<string, { route: typeof routes[0]; quantity: number; revenue: number }>);
 
-  const topRoutes = Object.values(routeSales)
-    .sort((a, b) => b.revenue - a.revenue)
-    .slice(0, 5);
+  const topRoutes = Object.values(routeSales).sort((a, b) => b.revenue - a.revenue).slice(0, 5);
 
   const paymentMethodsStats = todaySales.reduce((acc, sale) => {
     acc[sale.paymentMethod] = (acc[sale.paymentMethod] || 0) + 1;
@@ -56,19 +54,17 @@ export function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Tableau de bord</h1>
-        <p className="text-gray-600 mt-1">Madarail Madagascar - Vue d'ensemble</p>
+      <div className="min-w-0">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Tableau de bord</h1>
+        <p className="text-gray-600 mt-1 text-sm sm:text-base">Madarail Madagascar — Vue d'ensemble</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <Card>
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600 mb-1">Recettes du jour</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {formatAriary(totalRevenue)}
-              </p>
+              <p className="text-2xl font-bold text-gray-900">{formatAriary(totalRevenue)}</p>
             </div>
             <div className="bg-madarail-red-soft p-3 rounded-full">
               <TrendingUp className="w-6 h-6 text-madarail-red" />
@@ -100,9 +96,7 @@ export function Dashboard() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600 mb-1">Panier moyen</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {formatAriary(averageTicket)}
-              </p>
+              <p className="text-2xl font-bold text-gray-900">{formatAriary(averageTicket)}</p>
             </div>
             <div className="bg-purple-100 p-3 rounded-full">
               <TrendingUp className="w-6 h-6 text-purple-600" />
@@ -138,22 +132,16 @@ export function Dashboard() {
           ) : (
             <div className="space-y-4">
               {topRoutes.map((item, index) => (
-                <div key={item.route.id} className="flex items-center gap-4">
+                <div key={item.route.id} className="flex items-center gap-3 sm:gap-4 min-w-0">
                   <div className="flex-shrink-0 w-8 h-8 bg-madarail-red-soft rounded-full flex items-center justify-center text-madarail-red font-bold">
                     {index + 1}
                   </div>
-                  <div className="flex-1">
-                    <p className="font-medium text-gray-900">
-                      {item.route.departure} → {item.route.arrival}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      {item.route.classe} - {item.quantity} billet(s)
-                    </p>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-gray-900 truncate">{item.route.departure} → {item.route.arrival}</p>
+                    <p className="text-sm text-gray-600">{item.route.classe} — {item.quantity} billet(s)</p>
                   </div>
-                  <div className="text-right">
-                    <p className="font-bold text-gray-900">
-                      {formatAriary(item.revenue)}
-                    </p>
+                  <div className="text-right shrink-0">
+                    <p className="font-bold text-gray-900 text-sm sm:text-base tabular-nums">{formatAriary(item.revenue)}</p>
                   </div>
                 </div>
               ))}
@@ -161,7 +149,7 @@ export function Dashboard() {
           )}
         </Card>
 
-        <Card title="Modes de paiement">
+        <Card title="Opérateurs Mobile Money">
           <div className="space-y-4">
             {Object.entries(paymentMethodsStats).length === 0 ? (
               <p className="text-gray-500 text-center py-8">Aucune vente aujourd'hui</p>
@@ -169,30 +157,15 @@ export function Dashboard() {
               Object.entries(paymentMethodsStats).map(([method, count]) => {
                 const total = Object.values(paymentMethodsStats).reduce((a, b) => a + b, 0);
                 const percentage = (count / total) * 100;
-                const labels: Record<string, string> = {
-                  cash: 'Esp\u00e8ces',
-                  card: 'Carte bancaire',
-                  mobile_money: 'Mobile Money',
-                };
-                const colors: Record<string, string> = {
-                  cash: 'bg-green-600',
-                  card: 'bg-blue-600',
-                  mobile_money: 'bg-orange-600',
-                };
-
                 return (
                   <div key={method}>
                     <div className="flex justify-between mb-2">
-                      <span className="font-medium text-gray-900">
-                        {labels[method] || method}
-                      </span>
-                      <span className="text-gray-600">
-                        {count} ({percentage.toFixed(0)}%)
-                      </span>
+                      <span className="font-medium text-gray-900">{PAYMENT_LABELS[method] || method}</span>
+                      <span className="text-gray-600">{count} ({percentage.toFixed(0)}%)</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div
-                        className={`${colors[method] || 'bg-gray-600'} h-2 rounded-full transition-all`}
+                        className={`${PAYMENT_COLORS[method] || 'bg-gray-600'} h-2 rounded-full transition-all`}
                         style={{ width: `${percentage}%` }}
                       />
                     </div>
@@ -205,23 +178,24 @@ export function Dashboard() {
       </div>
 
       <Card title="Ventes par heure">
-        <div className="flex items-end gap-2 h-48">
-          {Array.from({ length: 24 }, (_, i) => i).map(hour => {
-            const value = hourlyStats[hour] || 0;
-            const maxValue = Math.max(...Object.values(hourlyStats), 1);
-            const height = (value / maxValue) * 100;
-
-            return (
-              <div key={hour} className="flex-1 flex flex-col items-center">
-                <div
-                  className="w-full bg-madarail-red rounded-t hover:bg-madarail-red-dark transition-colors cursor-pointer"
-                  style={{ height: `${height}%` }}
-                  title={`${hour}h: ${formatAriary(value)}`}
-                />
-                <span className="text-xs text-gray-600 mt-2">{hour}h</span>
-              </div>
-            );
-          })}
+        <div className="overflow-x-auto -mx-6 px-6 sm:mx-0 sm:px-0">
+          <div className="flex items-end gap-1.5 sm:gap-2 h-48 min-w-[36rem]">
+            {Array.from({ length: 24 }, (_, i) => i).map(hour => {
+              const value    = hourlyStats[hour] || 0;
+              const maxValue = Math.max(...Object.values(hourlyStats), 1);
+              const height   = (value / maxValue) * 100;
+              return (
+                <div key={hour} className="flex-1 min-w-[10px] flex flex-col items-center">
+                  <div
+                    className="w-full bg-madarail-red rounded-t hover:bg-madarail-red-dark transition-colors cursor-pointer"
+                    style={{ height: `${height}%` }}
+                    title={`${hour}h : ${formatAriary(value)}`}
+                  />
+                  <span className="text-[10px] sm:text-xs text-gray-600 mt-2 tabular-nums">{hour}h</span>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </Card>
     </div>

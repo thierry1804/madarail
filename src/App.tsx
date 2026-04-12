@@ -6,12 +6,15 @@ import {
   loadSidebarCollapsedPreference,
   saveSidebarCollapsedPreference,
 } from './components/Sidebar';
+import { OfflineIndicator } from './components/OfflineIndicator';
 import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
 import { POS } from './pages/POS';
 import { Products } from './pages/Products';
 import { Sales } from './pages/Sales';
 import { Users } from './pages/Users';
+import { Reservation } from './pages/Reservation';
+import { Bluetooth } from './pages/Bluetooth';
 
 function App() {
   const { currentView, currentUser } = useApp();
@@ -48,27 +51,47 @@ function App() {
     return <Login />;
   }
 
+  const role = currentUser.role;
+
   const renderView = () => {
     switch (currentView) {
       case 'dashboard':
+        // Only admins see the dashboard
+        if (role !== 'admin') return <Sales />;
         return <Dashboard />;
+
       case 'pos':
-        return <POS />;
+        return <POS readOnly={role === 'controller'} />;
+
       case 'routes':
         return <Products />;
+
       case 'sales':
         return <Sales />;
+
       case 'users':
+        // Only admins can access user management
+        if (role !== 'admin') return <Sales />;
         return <Users />;
+
+      case 'reservation':
+        // Agents and admins only
+        if (role === 'controller') return <Sales />;
+        return <Reservation />;
+
+      case 'bluetooth':
+        // Agents and controllers only
+        return <Bluetooth />;
+
       default:
-        return <Dashboard />;
+        return role === 'admin' ? <Dashboard /> : <Sales />;
     }
   };
 
-  const isPos = currentView === 'pos';
+  const isPos = currentView === 'pos' || currentView === 'reservation';
 
   return (
-    <div className="relative flex h-screen w-full flex-col bg-madarail-rail">
+    <div className="relative flex h-[100dvh] min-h-0 w-full max-w-[100vw] flex-col overflow-x-hidden bg-madarail-rail">
       {mobileNavOpen && (
         <button
           type="button"
@@ -78,7 +101,7 @@ function App() {
         />
       )}
 
-      <header className="flex h-14 shrink-0 items-center gap-3 border-b border-madarail-navy-bright bg-madarail-navy px-3 lg:hidden">
+      <header className="flex min-h-[calc(3.5rem+env(safe-area-inset-top,0px))] shrink-0 items-center gap-3 border-b border-madarail-navy-bright bg-madarail-navy px-3 pt-[env(safe-area-inset-top,0px)] lg:hidden">
         <button
           type="button"
           onClick={() => setMobileNavOpen(true)}
@@ -88,9 +111,12 @@ function App() {
           <Menu className="h-6 w-6" />
         </button>
         <span className="truncate text-sm font-semibold text-white">Madarail</span>
+        <div className="ml-auto">
+          <OfflineIndicator compact />
+        </div>
       </header>
 
-      <div className="flex min-h-0 flex-1">
+      <div className="flex min-h-0 min-w-0 flex-1">
         <Sidebar
           collapsed={sidebarCollapsed}
           onToggleCollapsed={toggleCollapsed}
@@ -98,8 +124,8 @@ function App() {
           onMobileOpenChange={setMobileNavOpen}
         />
         <main
-          className={`min-h-0 flex-1 ${
-            isPos ? 'overflow-hidden' : 'overflow-auto p-4 md:p-8'
+          className={`min-h-0 min-w-0 flex-1 ${
+            isPos ? 'overflow-hidden' : 'overflow-x-hidden overflow-y-auto p-3 sm:p-4 md:p-8'
           }`}
         >
           {renderView()}

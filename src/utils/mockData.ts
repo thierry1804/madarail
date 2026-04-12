@@ -1,5 +1,12 @@
 import { TrainRoute } from '../types';
 
+/** Villes de départ disponibles sur le réseau Madarail */
+export const DEPARTURE_CITIES: string[] = [
+  'Antananarivo',
+  'Moramanga',
+  'Ambila Lemaitso',
+];
+
 /**
  * Données indicative Madarail — tarifs exemples (à ajuster selon grille officielle).
  * Capacités : Train voyageur 88 ; Micheline 20 ; Trans Lémurie 52.

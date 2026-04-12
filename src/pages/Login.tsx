@@ -13,17 +13,27 @@ export function Login() {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
 
+    const role: User['role'] = email.includes('admin')
+      ? 'admin'
+      : email.includes('controller')
+      ? 'controller'
+      : 'agent';
+
     const mockUser: User = {
       id: '1',
       email,
       name: email.split('@')[0],
-      role: email.includes('admin') ? 'admin' : 'agent',
-      gareId: 'GARE-TANA-001',
+      role,
+      gare: 'Antananarivo',
       createdAt: new Date().toISOString(),
     };
 
     setCurrentUser(mockUser);
-    setCurrentView(mockUser.role === 'admin' ? 'dashboard' : 'pos');
+    const initialView =
+      role === 'admin' ? 'dashboard'
+      : role === 'controller' ? 'sales'
+      : 'pos';
+    setCurrentView(initialView);
   };
 
   return (
@@ -38,7 +48,7 @@ export function Login() {
           </p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-xl p-8 border border-slate-200/80">
+        <div className="bg-white rounded-2xl shadow-xl p-5 sm:p-8 border border-slate-200/80">
           <form onSubmit={handleLogin} className="space-y-6">
             <Input
               label="Email"
@@ -68,11 +78,11 @@ export function Login() {
           </form>
 
           <div className="mt-6 p-4 bg-madarail-rail rounded-lg border border-slate-200">
-            <p className="text-sm text-madarail-navy font-medium mb-2">D&eacute;mo:</p>
-            <p className="text-xs text-slate-600">
-              Admin: admin@madarail.mg
-              <br />
-              Agent: agent@madarail.mg
+            <p className="text-sm text-madarail-navy font-medium mb-2">D&eacute;mo :</p>
+            <p className="text-xs text-slate-600 space-y-1">
+              Admin&nbsp;: admin@madarail.mg<br />
+              Agent&nbsp;: agent@madarail.mg<br />
+              Contr&ocirc;leur&nbsp;: controller@madarail.mg
             </p>
           </div>
         </div>
